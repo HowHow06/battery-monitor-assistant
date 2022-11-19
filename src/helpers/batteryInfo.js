@@ -9,7 +9,7 @@ exports.getBatteryLevel = function () {
     const spawn = require("child_process").spawn;
 
     const pythonProcess = spawn("py", [
-      `${currentDirectory}/../python/getBatteryLevel.py`,
+      `${currentDirectory}/src/python/getBatteryLevel.py`,
     ]);
 
     pythonProcess.stdout.on("data", function (data) {
