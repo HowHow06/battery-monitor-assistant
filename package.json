@@ -19,6 +19,7 @@
     "google-assistant": "^0.7.0",
     "google-auth-library": "^8.7.0",
     "lowdb": "^5.0.5",
+    "minimist": "^1.2.7",
     "moment": "^2.29.4"
   }
 }
