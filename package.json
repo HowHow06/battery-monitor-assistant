@@ -1,0 +1,17 @@
+{
+  "name": "battery-monitor-assistant",
+  "version": "1.0.0",
+  "description": "Monitor laptop battery level and turn on / off the charger accordingly.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "battery",
+    "management",
+    "smart",
+    "iot"
+  ],
+  "author": "Howard Lim <howardlim06@outlook.com> ",
+  "license": "GPL-3.0"
+}
