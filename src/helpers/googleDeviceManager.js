@@ -3,14 +3,14 @@ const FileSync = require("lowdb/adapters/FileSync");
 const adapter = new FileSync("./bin/config.json");
 const Conversation = require("google-assistant/components/conversation");
 
-exports.turnOffCharger = function ({ charger, user }) {
-  exports.sendTextInput(`Turn off the ${charger}`, user);
-  console.log("Turn off dy!");
+exports.turnOffCharger = async function ({ charger, user }) {
+  console.log("Turning off!");
+  return exports.sendTextInput(`Turn off the ${charger}`, user);
 };
 
-exports.turnOnCharger = function ({ charger, user }) {
-  exports.sendTextInput(`Turn on the ${charger}`, user);
-  console.log("Turn on dy!");
+exports.turnOnCharger = async function ({ charger, user }) {
+  console.log("Turning on!");
+  return exports.sendTextInput(`Turn on the ${charger}`, user);
 };
 
 exports.sendTextInput = function (text, name) {

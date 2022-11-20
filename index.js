@@ -23,9 +23,12 @@ const { charger: chargerName = "my charger" } = arguments;
 let sendUpdateCounter = 3;
 global.assistants = {};
 
-function performActionTowardBatteryLevel(batteryLevelStatus, chargerName) {
+async function performActionTowardBatteryLevel(
+  batteryLevelStatus,
+  chargerName
+) {
   if (batteryLevelStatus === BATTERY_LEVEL_STATUS.STOP_CHARGE) {
-    turnOffCharger({
+    const conversation = await turnOffCharger({
       charger: chargerName,
       user: "Me",
     });
@@ -34,7 +37,7 @@ function performActionTowardBatteryLevel(batteryLevelStatus, chargerName) {
     batteryLevelStatus === BATTERY_LEVEL_STATUS.TO_CHARGE ||
     batteryLevelStatus === BATTERY_LEVEL_STATUS.EXTREME_LOW
   ) {
-    turnOnCharger({
+    const conversation = turnOnCharger({
       charger: chargerName,
       user: "Me",
     });
