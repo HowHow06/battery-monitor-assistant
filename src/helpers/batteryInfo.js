@@ -1,5 +1,3 @@
-"use strict";
-
 const { BATTERY_LEVEL_STATUS } = require("../constants/variables");
 
 exports.getBatteryLevel = function () {
