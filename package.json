@@ -20,6 +20,7 @@
     "google-auth-library": "^8.7.0",
     "lowdb": "^1.0.0",
     "minimist": "^1.2.7",
-    "moment": "^2.29.4"
+    "moment": "^2.29.4",
+    "wav": "^1.0.2"
   }
 }
