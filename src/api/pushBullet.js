@@ -1,7 +1,12 @@
+const low = require("lowdb");
+const FileSync = require("lowdb/adapters/filesync");
+const adapter = new FileSync("./bin/config.json");
 const axios = require("axios");
 
 exports.pushNote = async function ({ title, body }) {
   try {
+    const db = await low(adapter);
+    const pushBulletKey = db.get("pushBulletKey").value();
     const response = await axios.post(
       "https://api.pushbullet.com/v2/pushes",
       {
@@ -12,7 +17,7 @@ exports.pushNote = async function ({ title, body }) {
       {
         headers: {
           // TODO: move key to config.json, or env
-          Authorization: `Bearer o.wiv4UNCCMU6KJxExKhMHB9yAxEMzTZcn`,
+          Authorization: `Bearer ${pushBulletKey}`,
           "Content-Type": "application/json",
         },
       }
