@@ -20,5 +20,6 @@ exports.pushNote = async function ({ title, body }) {
     return response;
   } catch (error) {
     console.error(error);
+    return { success: false, errors: [error] };
   }
 };
