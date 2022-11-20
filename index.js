@@ -11,8 +11,16 @@ const {
   getChargerStatus,
 } = require("./src/helpers/googleDeviceManager");
 const { getNotificationDetail } = require("./src/helpers/notification");
-const { initializeServer } = require("./src/helpers/server");
+const {
+  initializeServer,
+  outputFileStream,
+  getTextFromAudioResponse,
+} = require("./src/helpers/server");
 const { delay } = require("./src/helpers/system");
+const low = require("lowdb");
+const FileSync = require("lowdb/adapters/FileSync");
+const adapter = new FileSync("./bin/config.json");
+const moment = require("moment");
 
 if (arguments.list || arguments.l) {
   console.log("available options:");
@@ -70,41 +78,55 @@ async function performActionTowardBatteryLevel(
   }
 
   // follow up status after 10sec, send update via pushbullet
-  // if (isGetChargerStatus) {
-  //   console.log("preparing to get status...");
-  //   await delay(1000 * 10);
-  //   console.log("getting status");
-  //   const chargerConversation = await getChargerStatus({
-  //     charger: chargerName,
-  //     user: "Me",
-  //   });
-  //   chargerConversation
-  //     .on("audio-data", async (data) => {
-  //       // fileStream.write(data);
-  //       // response.audio = `/server/audio?v=${timestamp}`;
-  //     })
-  //     .on("response", (text) => {
-  //       console.log("the text is", text);
-  //       response.response = text;
-  //     })
-  //     .on("ended", async (error, continueConversation) => {
-  //       if (error) {
-  //         response.success = false;
-  //         response.error = error;
-  //         console.error("Get charger status Ended Error:", error);
-  //       } else {
-  //         console.log("Get charger status Complete");
-  //         response.success = true;
-  //       }
-  //       chargerConversation.end();
-  //       if (response.success) {
-  //         pushNote({
-  //           title: "Charger status update",
-  //           body: response.response,
-  //         });
-  //       }
-  //     });
-  // }
+  if (isGetChargerStatus) {
+    console.log("Preparing to get status...");
+    await delay(1000 * 7);
+    console.log("Getting status...");
+    const db = await low(adapter);
+    const convoData = db.get("conversation").value();
+    const timestamp = moment(new Date()).format("YYYYMMDD-HHmmss");
+    const fileName = `status-${timestamp}`;
+    const fileStream = outputFileStream(convoData, fileName);
+
+    const chargerConversation = await getChargerStatus({
+      charger: chargerName,
+      user: "Me",
+    });
+    chargerConversation
+      .on("audio-data", async (data) => {
+        fileStream.write(data);
+      })
+      .on("response", (text) => {
+        response.response = text;
+      })
+      .on("ended", async (error, continueConversation) => {
+        if (error) {
+          response.success = false;
+          response.error = error;
+          console.error("Get charger status Ended Error:", error);
+        } else {
+          console.log("Get charger status Complete");
+          response.success = true;
+        }
+        fileStream.end();
+        chargerConversation.end();
+
+        let responseText = "";
+        try {
+          responseText = await getTextFromAudioResponse(fileName);
+          responseText = responseText.toString();
+        } catch (error) {
+          console.log("Error in getting text from audio:", error.message);
+        }
+
+        if (response.success && responseText) {
+          pushNote({
+            title: "Charger status update",
+            body: responseText,
+          });
+        }
+      });
+  }
 }
 
 async function main(chargerName) {
