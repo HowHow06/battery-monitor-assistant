@@ -17,6 +17,20 @@ if (arguments.list || arguments.l) {
 const { charger: chargerName = "my charger" } = arguments;
 let sendUpdateCounter = 3;
 
+function performActionTowardBatteryLevel(batteryLevelStatus, chargerName) {
+  if (batteryLevelStatus === BATTERY_LEVEL_STATUS.STOP_CHARGE) {
+    // turn off charger
+  }
+  if (
+    batteryLevelStatus === BATTERY_LEVEL_STATUS.TO_CHARGE ||
+    batteryLevelStatus === BATTERY_LEVEL_STATUS.EXTREME_LOW
+  ) {
+    // turn on charger
+  }
+
+  // follow up status after 30sec, send update via pushbullet
+}
+
 async function main(chargerName) {
   while (true) {
     let batteryInfo = {};
@@ -41,6 +55,7 @@ async function main(chargerName) {
       batteryPercentage,
       isPowerPlugged
     );
+
     const notificationDetail = getNotificationDetail({
       batteryLevelStatus,
       batteryPercentage,
@@ -60,6 +75,9 @@ async function main(chargerName) {
         body: notificationDetail.message,
       });
     }
+
+    performActionTowardBatteryLevel(batteryLevelStatus, chargerName);
+
     await delay(60 * 10);
   }
 }
