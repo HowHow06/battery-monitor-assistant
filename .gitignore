@@ -105,3 +105,4 @@ dist
 
 
 /bin/config.json
+/bin/audio-responses/*
