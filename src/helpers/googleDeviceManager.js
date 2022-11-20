@@ -5,10 +5,12 @@ const Conversation = require("google-assistant/components/conversation");
 
 exports.turnOffCharger = function ({ charger, user }) {
   exports.sendTextInput(`Turn off the ${charger}`, user);
+  console.log("Turn off dy!");
 };
 
 exports.turnOnCharger = function ({ charger, user }) {
   exports.sendTextInput(`Turn on the ${charger}`, user);
+  console.log("Turn on dy!");
 };
 
 exports.sendTextInput = function (text, name) {
