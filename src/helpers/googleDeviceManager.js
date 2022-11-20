@@ -3,6 +3,10 @@ const FileSync = require("lowdb/adapters/FileSync");
 const adapter = new FileSync("./bin/config.json");
 const Conversation = require("google-assistant/components/conversation");
 
+exports.getChargerStatus = async function ({ charger, user }) {
+  return exports.sendTextInput(`Is the ${charger} turned off?`, user);
+};
+
 exports.turnOffCharger = async function ({ charger, user }) {
   console.log("Turning off!");
   return exports.sendTextInput(`Turn off the ${charger}`, user);

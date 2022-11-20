@@ -24,7 +24,7 @@ exports.getBatteryLevelStatus = function (batterPercentage, isPowerPlugged) {
   // TODO: get percentage from env or config
   const isBatteryLow = batterPercentage < 25;
   const isBatteryExtremeLow = batterPercentage < 10;
-  const isBatteryHigh = batterPercentage > 90;
+  const isBatteryHigh = batterPercentage > 85;
 
   if (isBatteryExtremeLow && !isPowerPlugged) {
     return BATTERY_LEVEL_STATUS.EXTREME_LOW;
