@@ -5,6 +5,7 @@ const adapter = new FileSync("./bin/config.json");
 
 const Assistant = require("google-assistant/components/assistant");
 const { setCredentials } = require("./auth");
+const FileWriter = require("wav").FileWriter;
 
 exports.initializeServer = function () {
   return new Promise(async (resolve, reject) => {
@@ -60,5 +61,34 @@ exports.isStartupMuted = function () {
     const muteStartup = db.get("muteStartup").value();
     if (muteStartup) return resolve(true);
     return resolve(false);
+  });
+};
+
+exports.outputFileStream = function (conversation, fileName) {
+  return new FileWriter(`bin/audio-responses/${fileName}.wav`, {
+    sampleRate: conversation.audio.sampleRateOut,
+    channels: 1,
+  });
+};
+
+exports.getTextFromAudioResponse = function (fileName) {
+  return new Promise(function (resolve, reject) {
+    const process = require("process");
+    const currentDirectory = process.cwd();
+    const spawn = require("child_process").spawn;
+
+    const pythonProcess = spawn("py", [
+      `${currentDirectory}/src/python/wavToText.py`,
+      `--file`,
+      `${currentDirectory}\\bin\\audio-responses\\${fileName}.wav`,
+    ]);
+
+    pythonProcess.stdout.on("data", function (data) {
+      resolve(data);
+    });
+
+    pythonProcess.stderr.on("data", (data) => {
+      reject({ message: data.toString() });
+    });
   });
 };
