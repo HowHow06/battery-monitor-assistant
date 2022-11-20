@@ -5,7 +5,12 @@ const {
   getBatteryLevel,
   getBatteryLevelStatus,
 } = require("./src/helpers/batteryInfo");
+const {
+  turnOffCharger,
+  turnOnCharger,
+} = require("./src/helpers/googleDeviceManager");
 const { getNotificationDetail } = require("./src/helpers/notification");
+const { initializeServer } = require("./src/helpers/server");
 const { delay } = require("./src/helpers/system");
 
 if (arguments.list || arguments.l) {
@@ -16,22 +21,30 @@ if (arguments.list || arguments.l) {
 
 const { charger: chargerName = "my charger" } = arguments;
 let sendUpdateCounter = 3;
+global.assistants = {};
 
 function performActionTowardBatteryLevel(batteryLevelStatus, chargerName) {
   if (batteryLevelStatus === BATTERY_LEVEL_STATUS.STOP_CHARGE) {
-    // turn off charger
+    turnOffCharger({
+      charger: chargerName,
+      user: "Me",
+    });
   }
   if (
     batteryLevelStatus === BATTERY_LEVEL_STATUS.TO_CHARGE ||
     batteryLevelStatus === BATTERY_LEVEL_STATUS.EXTREME_LOW
   ) {
-    // turn on charger
+    turnOnCharger({
+      charger: chargerName,
+      user: "Me",
+    });
   }
 
   // follow up status after 30sec, send update via pushbullet
 }
 
 async function main(chargerName) {
+  await initializeServer();
   while (true) {
     let batteryInfo = {};
     sendUpdateCounter += 1;
@@ -78,7 +91,7 @@ async function main(chargerName) {
 
     performActionTowardBatteryLevel(batteryLevelStatus, chargerName);
 
-    await delay(60 * 10);
+    await delay(1000 * 60 * 10);
   }
 }
 
