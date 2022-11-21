@@ -132,6 +132,10 @@ async function performActionTowardBatteryLevel(
 
 async function main(chargerName) {
   await initializeServer();
+  if (!noAction) {
+    console.log(`Charger Name: ${chargerName}`);
+  }
+
   while (true) {
     let batteryInfo = {};
     sendUpdateCounter += 1;
