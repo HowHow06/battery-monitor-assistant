@@ -113,14 +113,16 @@ async function performActionTowardBatteryLevel(
         chargerConversation.end();
 
         let responseText = "";
+        let hasStatusError = false;
         try {
           responseText = await getTextFromAudioResponse(fileName);
           responseText = responseText.toString();
         } catch (error) {
+          hasStatusError = true;
           console.log("Error in getting text from audio:", error.message);
         }
 
-        if (response.success && responseText) {
+        if (response.success && responseText && !hasStatusError) {
           pushNote({
             title: "Charger status update",
             body: responseText,
