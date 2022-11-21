@@ -24,11 +24,12 @@ const moment = require("moment");
 
 if (arguments.list || arguments.l) {
   console.log("available options:");
-  console.log(" --charger=<charger name> Default is 'my charger' ");
+  console.log(" --charger=<charger name>: Default is 'my charger' ");
+  console.log(" --noAction: Do not send command to google assistant");
   return;
 }
 
-const { charger: chargerName = "my charger" } = arguments;
+const { charger: chargerName = "my charger", noAction = false } = arguments;
 let sendUpdateCounter = 3;
 global.assistants = {};
 
@@ -177,7 +178,9 @@ async function main(chargerName) {
       });
     }
 
-    performActionTowardBatteryLevel(batteryLevelStatus, chargerName);
+    if (!noAction) {
+      performActionTowardBatteryLevel(batteryLevelStatus, chargerName);
+    }
 
     await delay(1000 * 60 * 10);
   }
