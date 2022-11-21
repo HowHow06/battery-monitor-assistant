@@ -16,7 +16,6 @@ exports.pushNote = async function ({ title, body }) {
       },
       {
         headers: {
-          // TODO: move key to config.json, or env
           Authorization: `Bearer ${pushBulletKey}`,
           "Content-Type": "application/json",
         },

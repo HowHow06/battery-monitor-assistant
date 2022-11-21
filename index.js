@@ -151,7 +151,7 @@ async function main(chargerName) {
       remainingTime,
       batteryDieAtString,
     } = batteryInfo;
-    const batteryLevelStatus = getBatteryLevelStatus(
+    const batteryLevelStatus = await getBatteryLevelStatus(
       batteryPercentage,
       isPowerPlugged
     );

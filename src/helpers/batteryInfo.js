@@ -1,4 +1,7 @@
 const { BATTERY_LEVEL_STATUS } = require("../constants/variables");
+const low = require("lowdb");
+const FileSync = require("lowdb/adapters/FileSync");
+const adapter = new FileSync("./bin/config.json");
 
 exports.getBatteryLevel = function () {
   return new Promise(function (resolve, reject) {
@@ -20,11 +23,15 @@ exports.getBatteryLevel = function () {
   });
 };
 
-exports.getBatteryLevelStatus = function (batterPercentage, isPowerPlugged) {
-  // TODO: get percentage from env or config
-  const isBatteryLow = batterPercentage < 25;
-  const isBatteryExtremeLow = batterPercentage < 10;
-  const isBatteryHigh = batterPercentage > 85;
+exports.getBatteryLevelStatus = async function (
+  batterPercentage,
+  isPowerPlugged
+) {
+  const db = await low(adapter);
+  const batteryLevel = db.get("batteryLevel").value();
+  const isBatteryLow = batterPercentage < batteryLevel.low;
+  const isBatteryExtremeLow = batterPercentage < batteryLevel.extremeLow;
+  const isBatteryHigh = batterPercentage > batteryLevel.high;
 
   if (isBatteryExtremeLow && !isPowerPlugged) {
     return BATTERY_LEVEL_STATUS.EXTREME_LOW;

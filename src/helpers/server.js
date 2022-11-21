@@ -1,6 +1,5 @@
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
-
 const adapter = new FileSync("./bin/config.json");
 
 const Assistant = require("google-assistant/components/assistant");
@@ -12,6 +11,11 @@ exports.initializeServer = function () {
     const db = await low(adapter);
     await db
       .defaults({
+        batteryLevel: {
+          extremeLow: 10,
+          low: 25,
+          high: 85,
+        },
         muteStartup: false,
         conversation: {
           audio: {
@@ -28,6 +32,7 @@ exports.initializeServer = function () {
         users: [],
         responses: [],
         devices: [],
+        pushBulletKey: "",
       })
       .write();
     const size = db.get("users").size().value();
