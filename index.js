@@ -21,17 +21,42 @@ const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
 const adapter = new FileSync("./bin/config.json");
 const moment = require("moment");
+const { askQuestion } = require("./src/helpers/input");
+const { auth, processTokens } = require("./src/helpers/auth");
+const open = require("open");
+
+const defaultUserName = "Me";
 
 if (arguments.list || arguments.l) {
   console.log("available options:");
   console.log(" --charger=<charger name>: Default is 'my charger' ");
   console.log(" --noAction: Do not send command to google assistant");
+  console.log(" --reAuth: Reauthenticate account");
+  return;
+}
+
+if (arguments["reAuth"]) {
+  reAuth();
   return;
 }
 
 const { charger: chargerName = "my charger", noAction = false } = arguments;
 let sendUpdateCounter = 3;
 global.assistants = {};
+
+async function reAuth() {
+  const db = await low(adapter);
+  const secret = db.get("users").find({ name: defaultUserName }).value().secret;
+  if (secret) {
+    console.log(secret);
+    const url = await auth(secret);
+    console.log("url for auth is:", url);
+    open(url);
+    const oauthCode = await askQuestion("Please enter the auth code:");
+    const client = await processTokens(oauthCode, defaultUserName);
+    console.log("Reauthenticated user!: ", oauthCode);
+  }
+}
 
 async function performActionTowardBatteryLevel(
   batteryLevelStatus,
@@ -45,7 +70,7 @@ async function performActionTowardBatteryLevel(
     isGetChargerStatus = true;
     conversation = await turnOffCharger({
       charger: chargerName,
-      user: "Me",
+      user: defaultUserName,
     });
   }
 
@@ -56,7 +81,7 @@ async function performActionTowardBatteryLevel(
     isGetChargerStatus = true;
     conversation = await turnOnCharger({
       charger: chargerName,
-      user: "Me",
+      user: defaultUserName,
     });
   }
 
@@ -91,7 +116,7 @@ async function performActionTowardBatteryLevel(
 
     const chargerConversation = await getChargerStatus({
       charger: chargerName,
-      user: "Me",
+      user: defaultUserName,
     });
     chargerConversation
       .on("audio-data", async (data) => {
