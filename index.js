@@ -22,7 +22,7 @@ const FileSync = require("lowdb/adapters/FileSync");
 const adapter = new FileSync("./bin/config.json");
 const moment = require("moment");
 const { askQuestion } = require("./src/helpers/input");
-const { auth, processTokens } = require("./src/helpers/auth");
+const { auth, processTokens, revokeToken } = require("./src/helpers/auth");
 const open = require("open");
 
 const defaultUserName = "Me";
@@ -48,7 +48,9 @@ async function reAuth() {
   const db = await low(adapter);
   const secret = db.get("users").find({ name: defaultUserName }).value().secret;
   if (secret) {
-    console.log(secret);
+    await revokeToken(defaultUserName);
+    console.log("token revoked!");
+
     const url = await auth(secret);
     console.log("url for auth is:", url);
     open(url);

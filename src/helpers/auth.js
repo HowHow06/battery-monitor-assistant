@@ -23,6 +23,34 @@ exports.auth = async function (keyData) {
 };
 
 // TODO: modify
+exports.revokeToken = async function (name) {
+  try {
+    const db = await low(adapter);
+    const user = await db.get("users").find({ name }).value();
+    const key = user.secret.installed || user.secret.web;
+    const oauthClient = new OAuth2Client(
+      key.client_id,
+      key.client_secret,
+      key.redirect_uris[0]
+    );
+    const token = user.tokens?.access_token;
+    if (!token) {
+      return;
+    }
+    await oauthClient.revokeToken(token);
+    await db
+      .get("users")
+      .chain()
+      .find({ name: name })
+      .assign({ tokens: {} })
+      .write();
+    return oauthClient;
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+// TODO: modify
 exports.processTokens = async function (oauthCode, name) {
   try {
     const db = await low(adapter);
