@@ -24,6 +24,7 @@ const moment = require("moment");
 const { askQuestion } = require("./src/helpers/input");
 const { auth, processTokens, revokeToken } = require("./src/helpers/auth");
 const open = require("open");
+const { isValidURL } = require("./src/helpers/validator");
 
 const defaultUserName = "Me";
 
@@ -54,7 +55,14 @@ async function reAuth() {
     const url = await auth(secret);
     console.log("url for auth is:", url);
     open(url);
-    const oauthCode = await askQuestion("Please enter the auth code:");
+    const input = await askQuestion("Please enter the auth code or auth url:");
+    let oauthCode = input;
+    if (isValidURL(input)) {
+      const urlObject = new URL(input);
+      const params = new URLSearchParams(urlObject.search);
+      const code = params.get("code");
+      oauthCode = code ? code : input;
+    }
     const client = await processTokens(oauthCode, defaultUserName);
     console.log("Reauthenticated user!: ", oauthCode);
   }
