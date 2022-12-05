@@ -152,7 +152,7 @@ async function performActionTowardBatteryLevel(
   // follow up status after 10sec, send update via pushbullet
   if (isGetChargerStatus) {
     console.log("Preparing to get status...");
-    await delay(1000 * 7);
+    await delay(1000 * 20);
     console.log("Getting status...");
     const db = await low(adapter);
     const convoData = db.get("conversation").value();
