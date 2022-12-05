@@ -86,7 +86,7 @@ exports.processTokens = async function (oauthCode, name) {
     handleError({
       errorMessage: `${e.response?.data?.error}: ${e.response?.data?.error_description}`,
       event: e,
-      processName: "process token",
+      processName: "process token from auth code",
     });
   }
 };
