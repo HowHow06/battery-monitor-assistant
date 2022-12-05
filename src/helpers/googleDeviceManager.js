@@ -2,6 +2,7 @@ const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
 const adapter = new FileSync("./bin/config.json");
 const Conversation = require("google-assistant/components/conversation");
+const { handleError } = require("./errorHandler");
 
 exports.getChargerStatus = async function ({ charger, user }) {
   return exports.sendTextInput(`Is the ${charger} turned off?`, user);
@@ -39,6 +40,11 @@ exports.sendTextInput = function (text, name) {
       resolve();
     } catch (e) {
       reject(e);
+      handleError({
+        errorMessage: `${e.response?.data?.error}: ${e.response?.data?.error_description}`,
+        event: e,
+        processName: `Send text input-${text}`,
+      });
     }
   });
 };

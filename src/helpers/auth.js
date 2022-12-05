@@ -2,6 +2,7 @@ const { OAuth2Client } = require("google-auth-library");
 
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
+const { handleError } = require("./errorHandler");
 const adapter = new FileSync("./bin/config.json");
 
 // TODO: modify
@@ -19,6 +20,11 @@ exports.auth = async function (keyData) {
     });
   } catch (e) {
     console.error(e);
+    handleError({
+      errorMessage: `${e.response?.data?.error}: ${e.response?.data?.error_description}`,
+      event: e,
+      processName: "authentication",
+    });
   }
 };
 
@@ -47,6 +53,11 @@ exports.revokeToken = async function (name) {
     return oauthClient;
   } catch (e) {
     console.error(e);
+    handleError({
+      errorMessage: `${e.response?.data?.error}: ${e.response?.data?.error_description}`,
+      event: e,
+      processName: "revoke token",
+    });
   }
 };
 
@@ -72,6 +83,11 @@ exports.processTokens = async function (oauthCode, name) {
     return oauthClient;
   } catch (e) {
     console.error(e);
+    handleError({
+      errorMessage: `${e.response?.data?.error}: ${e.response?.data?.error_description}`,
+      event: e,
+      processName: "process token",
+    });
   }
 };
 
@@ -89,5 +105,10 @@ exports.setCredentials = async function (name) {
     return oauthClient;
   } catch (e) {
     console.error(e);
+    handleError({
+      errorMessage: `${e.response?.data?.error}: ${e.response?.data?.error_description}`,
+      event: e,
+      processName: "set credential",
+    });
   }
 };
