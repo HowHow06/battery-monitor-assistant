@@ -33,24 +33,60 @@ if (arguments.list || arguments.l) {
   console.log(" --charger=<charger name>: Default is 'my charger' ");
   console.log(" --noAction: Do not send command to google assistant");
   console.log(" --reAuth: Reauthenticate account");
+  console.log(" --noRevoke: Do not revoke token when reauthenticating account");
+  console.log(" --revoke: Revoke token only");
+  console.log(" --test: Test send command to google assitant.");
   return;
 }
+
+const {
+  charger: chargerName = "my charger",
+  noAction = false,
+  noRevoke = false,
+  revoke = false,
+  test = false,
+} = arguments;
+let sendUpdateCounter = 3;
+global.assistants = {};
 
 if (arguments["reAuth"]) {
   reAuth();
   return;
 }
 
-const { charger: chargerName = "my charger", noAction = false } = arguments;
-let sendUpdateCounter = 3;
-global.assistants = {};
+if (revoke) {
+  revokeAuth();
+  return;
+}
+
+if (test) {
+  testCommand();
+  return;
+}
+
+async function testCommand() {
+  await initializeServer();
+  const conversation = await turnOffCharger({
+    charger: chargerName,
+    user: defaultUserName,
+  });
+
+  console.log("Tested turn off command");
+}
+
+async function revokeAuth() {
+  await revokeToken(defaultUserName);
+  console.log("token revoked!");
+}
 
 async function reAuth() {
   const db = await low(adapter);
   const secret = db.get("users").find({ name: defaultUserName }).value().secret;
   if (secret) {
-    await revokeToken(defaultUserName);
-    console.log("token revoked!");
+    if (!noRevoke) {
+      await revokeToken(defaultUserName);
+      console.log("token revoked!");
+    }
 
     const url = await auth(secret);
     console.log("url for auth is:", url);
