@@ -53,6 +53,13 @@ exports.revokeToken = async function (name) {
     return oauthClient;
   } catch (e) {
     console.error(e);
+    if (e.response?.data?.error_description === "Token expired or revoked") {
+      db.get("users")
+        .chain()
+        .find({ name: name })
+        .assign({ tokens: {} })
+        .write();
+    }
     handleError({
       errorMessage: `${e.response?.data?.error}: ${e.response?.data?.error_description}`,
       event: e,

@@ -25,6 +25,7 @@ const { askQuestion } = require("./src/helpers/input");
 const { auth, processTokens, revokeToken } = require("./src/helpers/auth");
 const open = require("open");
 const { isValidURL } = require("./src/helpers/validator");
+const { handleError } = require("./src/helpers/errorHandler");
 
 const defaultUserName = "Me";
 
@@ -113,22 +114,38 @@ async function performActionTowardBatteryLevel(
   let conversation = "";
 
   if (batteryLevelStatus === BATTERY_LEVEL_STATUS.STOP_CHARGE) {
-    isGetChargerStatus = true;
-    conversation = await turnOffCharger({
-      charger: chargerName,
-      user: defaultUserName,
-    });
+    try {
+      isGetChargerStatus = true;
+      conversation = await turnOffCharger({
+        charger: chargerName,
+        user: defaultUserName,
+      });
+    } catch (error) {
+      handleError({
+        errorMessage: `Error in turning off charger, please re-auth and test`,
+        event: e,
+        processName: `turning off`,
+      });
+    }
   }
 
   if (
     batteryLevelStatus === BATTERY_LEVEL_STATUS.TO_CHARGE ||
     batteryLevelStatus === BATTERY_LEVEL_STATUS.EXTREME_LOW
   ) {
-    isGetChargerStatus = true;
-    conversation = await turnOnCharger({
-      charger: chargerName,
-      user: defaultUserName,
-    });
+    try {
+      isGetChargerStatus = true;
+      conversation = await turnOnCharger({
+        charger: chargerName,
+        user: defaultUserName,
+      });
+    } catch (error) {
+      handleError({
+        errorMessage: `Error in turning on charger, please re-auth and test`,
+        event: e,
+        processName: `turning on charger`,
+      });
+    }
   }
 
   // end conversation

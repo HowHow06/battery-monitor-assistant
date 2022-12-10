@@ -39,12 +39,12 @@ exports.sendTextInput = function (text, name) {
       }
       resolve();
     } catch (e) {
-      reject(e);
       handleError({
         errorMessage: `${e.response?.data?.error}: ${e.response?.data?.error_description}`,
         event: e,
         processName: `Send text input-${text}`,
       });
+      reject(e);
     }
   });
 };
