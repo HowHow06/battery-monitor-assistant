@@ -37,6 +37,7 @@ if (arguments.list || arguments.l) {
   console.log(" --noRevoke: Do not revoke token when reauthenticating account");
   console.log(" --revoke: Revoke token only");
   console.log(" --test: Test send command to google assitant.");
+  console.log(" --noNoti: Do not send notification to push bullet");
   return;
 }
 
@@ -46,6 +47,7 @@ const {
   noRevoke = false,
   revoke = false,
   test = false,
+  noNoti = false,
 } = arguments;
 let sendUpdateCounter = 3;
 global.assistants = {};
@@ -263,7 +265,7 @@ async function main(chargerName) {
       isToPushNotification = sendUpdateCounter >= 3;
     }
 
-    if (isToPushNotification) {
+    if (isToPushNotification && !noNoti) {
       sendUpdateCounter = 0;
       console.log("NOTIFICATION PUSH! STATUS: ", batteryLevelStatus);
       pushNote({
