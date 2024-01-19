@@ -37,6 +37,7 @@ if (arguments.list || arguments.l) {
   console.log(" --noRevoke: Do not revoke token when reauthenticating account");
   console.log(" --revoke: Revoke token only");
   console.log(" --test: Test send command to google assitant.");
+  console.log(" --testOn: Test send command to google assitant.");
   console.log(" --noNoti: Do not send notification to push bullet");
   return;
 }
@@ -48,6 +49,7 @@ const {
   revoke = false,
   test = false,
   noNoti = false,
+  testOn = false,
 } = arguments;
 let sendUpdateCounter = 3;
 global.assistants = {};
@@ -67,8 +69,23 @@ if (test) {
   return;
 }
 
-async function testCommand() {
+if (testOn) {
+  testCommand(true);
+  return;
+}
+
+async function testCommand(isTurnOn = false) {
   await initializeServer();
+
+  if (isTurnOn) {
+    const conversation = await turnOnCharger({
+      charger: chargerName,
+      user: defaultUserName,
+    });
+    console.log("Tested turn on command");
+    return;
+  }
+
   const conversation = await turnOffCharger({
     charger: chargerName,
     user: defaultUserName,

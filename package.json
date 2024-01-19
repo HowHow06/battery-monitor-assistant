@@ -4,7 +4,8 @@
   "description": "Monitor laptop battery level and turn on / off the charger accordingly.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./index.js --noNoti"
   },
   "keywords": [
     "battery",
