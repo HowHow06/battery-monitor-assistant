@@ -52,7 +52,7 @@ const {
   testOn = false,
 } = arguments;
 let sendUpdateCounter = 3;
-global.assistants = {};
+global.assistants = {}; // initialize global variable for assistant
 
 if (arguments["reAuth"]) {
   reAuth();
