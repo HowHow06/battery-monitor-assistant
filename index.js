@@ -16,7 +16,7 @@ const {
   outputFileStream,
   getTextFromAudioResponse,
 } = require("./src/helpers/server");
-const { delay } = require("./src/helpers/system");
+const { delay, loadJsonFromFile } = require("./src/helpers/system");
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
 const adapter = new FileSync("./bin/config.json");
@@ -30,15 +30,16 @@ const { handleError } = require("./src/helpers/errorHandler");
 const defaultUserName = "Me";
 
 if (arguments.list || arguments.l) {
-  console.log("available options:");
-  console.log(" --charger=<charger name>: Default is 'my charger' ");
-  console.log(" --noAction: Do not send command to google assistant");
-  console.log(" --reAuth: Reauthenticate account");
-  console.log(" --noRevoke: Do not revoke token when reauthenticating account");
-  console.log(" --revoke: Revoke token only");
-  console.log(" --test: Test send command to google assitant.");
-  console.log(" --testOn: Test send command to google assitant.");
-  console.log(" --noNoti: Do not send notification to push bullet");
+  console.log(`available options:`);
+  console.log(` --charger=<charger name>: Default is 'my charger' `);
+  console.log(` --noAction: Do not send command to google assistant`);
+  console.log(` --reAuth: Reauthenticate account`);
+  console.log(` --noRevoke: Do not revoke token when reauthenticating account`);
+  console.log(` --revoke: Revoke token only`);
+  console.log(` --test: Test send command to google assitant.`);
+  console.log(` --testOn: Test send command to google assitant.`);
+  console.log(` --noNoti: Do not send notification to push bullet`);
+  console.log(` --credential='<path>': Path to the credential json file. `);
   return;
 }
 
@@ -50,6 +51,7 @@ const {
   test = false,
   noNoti = false,
   testOn = false,
+  credential: credentialPath = undefined,
 } = arguments;
 let sendUpdateCounter = 3;
 global.assistants = {}; // initialize global variable for assistant
@@ -101,6 +103,29 @@ async function revokeAuth() {
 
 async function reAuth() {
   const db = await low(adapter);
+  const userFound =
+    (await db.get("users").find({ name: defaultUserName }).size().value()) > 0;
+
+  if (!userFound && credentialPath === undefined) {
+    console.log("No credential is passed for the initial authentication.");
+    return;
+  }
+
+  if (!userFound && credentialPath !== undefined) {
+    try {
+      const retrievedSecret = loadJsonFromFile(credentialPath);
+      await db
+        .get("users")
+        .push({
+          name: defaultUserName,
+          secret: retrievedSecret,
+        })
+        .write();
+    } catch (error) {
+      console.error("Error loading credential file:", error.message);
+    }
+  }
+
   const secret = db.get("users").find({ name: defaultUserName }).value().secret;
   if (secret) {
     if (!noRevoke) {
@@ -121,6 +146,9 @@ async function reAuth() {
     }
     const client = await processTokens(oauthCode, defaultUserName);
     console.log("Reauthenticated user!: ", oauthCode);
+  } else {
+    console.log(secret);
+    console.log("No credential is passed.");
   }
 }
 

@@ -5,14 +5,13 @@ const FileSync = require("lowdb/adapters/FileSync");
 const { handleError } = require("./errorHandler");
 const adapter = new FileSync("./bin/config.json");
 
-// TODO: modify
 exports.auth = async function (keyData) {
   try {
     const key = keyData.installed || keyData.web;
     const oauthClient = new OAuth2Client(
       key.client_id,
       key.client_secret,
-      key.redirect_uris[0]
+      key.redirect_uris?.[0]
     );
     return oauthClient.generateAuthUrl({
       access_type: "offline",
@@ -28,7 +27,6 @@ exports.auth = async function (keyData) {
   }
 };
 
-// TODO: modify
 exports.revokeToken = async function (name) {
   try {
     const db = await low(adapter);
