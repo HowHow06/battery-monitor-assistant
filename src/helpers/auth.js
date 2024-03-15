@@ -11,7 +11,7 @@ exports.auth = async function (keyData) {
     const oauthClient = new OAuth2Client(
       key.client_id,
       key.client_secret,
-      key.redirect_uris?.[0]
+      key.redirect_uris[0]
     );
     return oauthClient.generateAuthUrl({
       access_type: "offline",
