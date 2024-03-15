@@ -7,6 +7,10 @@ exports.pushNote = async function ({ title, body }) {
   try {
     const db = await low(adapter);
     const pushBulletKey = db.get("pushBulletKey").value();
+    if (pushBulletKey === undefined) {
+      console.log("No pushbullet key found!");
+      return;
+    }
     const response = await axios.post(
       "https://api.pushbullet.com/v2/pushes",
       {
