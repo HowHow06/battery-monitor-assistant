@@ -82,7 +82,7 @@ exports.getTextFromAudioResponse = function (fileName) {
     const currentDirectory = process.cwd();
     const spawn = require("child_process").spawn;
 
-    const pythonProcess = spawn("py", [
+    const pythonProcess = spawn("python", [
       `${currentDirectory}/src/python/wavToText.py`,
       `--file`,
       `${currentDirectory}\\bin\\audio-responses\\${fileName}.wav`,
