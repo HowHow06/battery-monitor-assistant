@@ -298,6 +298,16 @@ async function performActionTowardBatteryLevel(
 
 async function main(chargerName) {
   await initializeServer();
+  const process = require("process");
+  const currentDirectory = process.cwd();
+  const spawn = require("child_process").spawn;
+  const pythonProcess = spawn("python", [
+    `${currentDirectory}/src/python/testVirtualEnvironment.py`,
+  ]);
+  pythonProcess.stdout.on("data", function (data) {
+    console.log(data.toString());
+  });
+
   if (!noAction) {
     console.log(`Charger Name: ${chargerName}`);
   }
@@ -306,15 +316,6 @@ async function main(chargerName) {
     let batteryInfo = {};
     sendUpdateCounter += 1;
     let isToPushNotification = true;
-    // const process = require("process");
-    // const currentDirectory = process.cwd();
-    // const spawn = require("child_process").spawn;
-    // const pythonProcess = spawn("python", [
-    //   `${currentDirectory}/src/python/testVirtualEnvironment.py`,
-    // ]);
-    // pythonProcess.stdout.on("data", function (data) {
-    //   console.log(data.toString());
-    // });
 
     try {
       const batteryInfoString = await getBatteryLevel();
