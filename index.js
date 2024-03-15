@@ -31,6 +31,7 @@ const defaultUserName = "Me";
 
 if (arguments.list || arguments.l) {
   console.log(`available options:`);
+  console.log(` --init: Initialize the app.`);
   console.log(` --charger=<charger name>: Default is 'my charger' `);
   console.log(` --noAction: Do not send command to google assistant`);
   console.log(` --auth: Authenticate account for the first time`);
@@ -59,6 +60,11 @@ const {
 let sendUpdateCounter = 3;
 global.assistants = {}; // initialize global variable for assistant
 
+if (arguments["init"]) {
+  initServer();
+  return;
+}
+
 if (arguments["auth"]) {
   initialAuth().then((isAuthInitialized) => {
     if (isAuthInitialized) processAuth(false, true);
@@ -84,6 +90,10 @@ if (test) {
 if (testOn) {
   testCommand(true);
   return;
+}
+
+async function initServer() {
+  await initializeServer();
 }
 
 async function testCommand(isTurnOn = false) {
@@ -298,6 +308,16 @@ async function performActionTowardBatteryLevel(
 
 async function main(chargerName) {
   await initializeServer();
+  const process = require("process");
+  const currentDirectory = process.cwd();
+  const spawn = require("child_process").spawn;
+  const pythonProcess = spawn("python", [
+    `${currentDirectory}/src/python/testVirtualEnvironment.py`,
+  ]);
+  pythonProcess.stdout.on("data", function (data) {
+    console.log(data.toString());
+  });
+
   if (!noAction) {
     console.log(`Charger Name: ${chargerName}`);
   }
