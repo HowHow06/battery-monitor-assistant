@@ -1,5 +1,5 @@
 const low = require("lowdb");
-const FileSync = require("lowdb/adapters/filesync");
+const FileSync = require("lowdb/adapters/FileSync");
 const adapter = new FileSync("./bin/config.json");
 const axios = require("axios");
 
@@ -8,7 +8,7 @@ exports.pushNote = async function ({ title, body }) {
     const db = await low(adapter);
     const pushBulletKey = db.get("pushBulletKey").value();
     if (pushBulletKey === undefined) {
-      console.log("No pushbullet key found!");
+      console.log("No pushbullet key found, aborting push notification...");
       return;
     }
     const response = await axios.post(
