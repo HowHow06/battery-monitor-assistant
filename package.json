@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./index.js --noNoti"
+    "start": "node ./index.js --noNoti",
+    "setup": "node ./index.js --init",
+    "auth": "node ./index.js --auth",
+    "man": "node ./index.js --list"
   },
   "keywords": [
     "battery",
