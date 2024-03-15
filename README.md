@@ -10,7 +10,8 @@ If you are interested in using this app, refer to the installation guide below.
 
 # Credit
 
-This project uses the [google-assistant](https://github.com/endoplasmic/google-assistant) package from endoplasmic
+This project uses the [google-assistant](https://github.com/endoplasmic/google-assistant) package from endoplasmic.
+
 This project also refers to [Assistant Relay](https://github.com/greghesp/assistant-relay) app by greghesp.
 
 ---
@@ -187,7 +188,7 @@ Please enter the auth code or auth url:
 
 7. You should be authenticated.
 
-## Configuring Pushbullet Notification
+## Configuring Battery Monitor Assistant
 
 - Battery Monitor Assistant supports pushbullet notification. Optionally you can pass add your pushbullet API key to `/bin/config.json` file.
 - You can also adjust the `batteryLevel.low` and `batteryLevel.high` value in the config file. The charger will be turned on when the battery level is below the low threshold and will be turned off when the battery level is above the high threshold
