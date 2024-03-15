@@ -33,8 +33,11 @@ if (arguments.list || arguments.l) {
   console.log(`available options:`);
   console.log(` --charger=<charger name>: Default is 'my charger' `);
   console.log(` --noAction: Do not send command to google assistant`);
+  console.log(` --auth: Authenticate account for the first time`);
   console.log(` --reAuth: Reauthenticate account`);
-  console.log(` --noRevoke: Do not revoke token when reauthenticating account`);
+  console.log(
+    ` --noRevoke: Do not revoke token when reauthenticating account. Used together with --reAuth`
+  );
   console.log(` --revoke: Revoke token only`);
   console.log(` --test: Test send command to google assitant.`);
   console.log(` --testOn: Test send command to google assitant.`);
@@ -56,8 +59,15 @@ const {
 let sendUpdateCounter = 3;
 global.assistants = {}; // initialize global variable for assistant
 
+if (arguments["auth"]) {
+  initialAuth().then((isAuthInitialized) => {
+    if (isAuthInitialized) processAuth(false, true);
+  });
+  return;
+}
+
 if (arguments["reAuth"]) {
-  reAuth();
+  processAuth(true, noRevoke);
   return;
 }
 
@@ -101,19 +111,21 @@ async function revokeAuth() {
   console.log("token revoked!");
 }
 
-async function reAuth() {
+async function initialAuth() {
   const db = await low(adapter);
   const userFound =
     (await db.get("users").find({ name: defaultUserName }).size().value()) > 0;
 
-  if (!userFound && credentialPath === undefined) {
-    console.log("No credential is passed for the initial authentication.");
-    return;
+  if (credentialPath === undefined) {
+    console.error(
+      "No credential is passed for the initial authentication. Please pass the --credential argument."
+    );
+    return false;
   }
 
-  if (!userFound && credentialPath !== undefined) {
-    try {
-      const retrievedSecret = loadJsonFromFile(credentialPath);
+  try {
+    const retrievedSecret = loadJsonFromFile(credentialPath);
+    if (!userFound) {
       await db
         .get("users")
         .push({
@@ -121,12 +133,25 @@ async function reAuth() {
           secret: retrievedSecret,
         })
         .write();
-    } catch (error) {
-      console.error("Error loading credential file:", error.message);
+    } else {
+      await db
+        .get("users")
+        .chain()
+        .find({ name: defaultUserName })
+        .assign({ secret: retrievedSecret })
+        .write();
     }
+    return true;
+  } catch (error) {
+    console.error("Error loading credential file:", error.message);
+    return false;
   }
+}
 
+async function processAuth(isReAuth = false, noRevoke = false) {
+  const db = await low(adapter);
   const secret = db.get("users").find({ name: defaultUserName }).value().secret;
+
   if (secret) {
     if (!noRevoke) {
       await revokeToken(defaultUserName);
@@ -145,7 +170,11 @@ async function reAuth() {
       oauthCode = code ? code : input;
     }
     const client = await processTokens(oauthCode, defaultUserName);
-    console.log("Reauthenticated user!: ", oauthCode);
+    if (isReAuth) {
+      console.log("Reauthenticated user!: ", oauthCode);
+    } else {
+      console.log("Authenticated user!: ", oauthCode);
+    }
   } else {
     console.log(secret);
     console.log("No credential is passed.");
